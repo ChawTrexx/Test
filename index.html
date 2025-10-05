@@ -1,118 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DesiPapa.xxx</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <link rel="manifest" href="/manifest.json">
-
-  <!-- Open Graph tags -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="𝗦𝗵𝗮𝗿𝗲𝗱 𝘃𝗶𝗮 𝗧𝗲𝗿𝗮𝗕𝗼𝘅">
-  <meta property="og:description" content="Watch this content via TeraBox.">
-  <meta property="og:url" content="https://honeycum.fun/play3.html">
-  <meta property="og:image" content="images/Terabox.png">
-  <meta property="og:site_name" content="TeraBox">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="𝗦𝗵𝗮𝗿𝗲𝗱 𝘃𝗶𝗮 𝗧𝗲𝗿𝗮𝗕𝗼𝘅">
-  <meta name="twitter:description" content="Watch this content via TeraBox.">
-  <meta name="twitter:image" content="images/Terabox.png">
-
-  <style>
-    .video-wrapper {
-      position: relative;
-      width: 100%;
-      padding-top: 177.78%; /* 9:16 aspect ratio */
-      overflow: hidden;
-      border-radius: 0.5rem;
-      background-color: black;
-    }
-
-    .video-wrapper iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .error-message {
-      color: #e53e3e;
-      font-size: 1rem;
-      text-align: center;
-      padding: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure URL Generator - iTeraPlay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="url"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[readonly] {
+            background-color: #e8f5e8 !important;
+            border-color: #28a745;
+            cursor: not-allowed;
+            font-family: monospace !important;
+        }
+        small {
+            color: #666;
+            font-size: 12px;
+            display: block;
+            margin-top: 5px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+        .result.error {
+            background: #f8e8e8;
+            border-left-color: #dc3545;
+        }
+        .url-output {
+            word-break: break-all;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        #iframeContainer iframe {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center min-h-screen">
-
-  <!-- Header -->
-  <header class="w-full h-16 bg-gray-900 text-white flex items-center justify-between px-4">
-    <h1 class="text-lg font-semibold">TeraPlayer</h1>
-    <a href="https://t.me/+Q656m5kaC245Njg1" target="_blank" rel="noopener noreferrer" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm inline-block">
-      Join Channel
-    </a>
-  </header>
-
-  <!-- Stream Container -->
-  <div class="stream-container w-full max-w-4xl mx-auto mt-4 flex flex-col items-center px-1">
-    <h1 id="file-info" class="text-center text-lg font-medium text-gray-800 mb-4">
-      Loading video...
-    </h1>
-
-    <div id="video-container" class="w-full bg-black rounded-lg">
-      <div class="video-wrapper">
-        <!-- Play button initially -->
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div id="play-button" class="w-16 h-16 md:w-20 md:h-20 bg-white/70 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-            <div class="w-0 h-0 border-l-[20px] border-l-black border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent md:border-l-[24px] md:border-t-[14px] md:border-b-[14px]"></div>
-          </div>
+<body>
+    <div class="container">
+        <h1>🔐 Secure URL Generator</h1>
+        <p>Generate time-limited secure URLs for accessing TeraBox videos through player.iteraplay.com API.</p>
+        
+        <form id="urlForm">
+            <div class="form-group">
+                <label for="terabox_url">TeraBox URL:</label>
+                <input type="url" id="terabox_url" name="terabox_url" placeholder="https://terabox.com/share/..." required="">
+                <small>Enter any valid TeraBox share link to generate a secure player URL</small>
+            </div>
+            
+            <button type="submit">Generate Secure URL</button>
+        </form>
+        
+        <div id="result" class="result">
+            <h3>Generated Secure URL:</h3>
+            <div id="secure_url" class="url-output"></div>
+            <p><strong>⏰ Valid for:</strong> 5 minutes from generation</p>
+            <p><strong>🔒 Security:</strong> Token-protected and iframe-resistant</p>
         </div>
-      </div>
+
+        <!-- Iframe will be injected here -->
+        <div id="iframeContainer"></div>
     </div>
-  </div> 
-  
-  <footer class="w-full bg-gray-900 text-gray-300 text-center text-xs py-2 mt-auto">
-    ** Wait 10-15 sec to start streaming the video. Refresh this page if video doesn't load **
-  </footer>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const terabox_url = params.get('q');
-      const videoContainer = document.getElementById('video-container');
-      const fileInfoDiv = document.getElementById('file-info');
-      const playButton = document.getElementById('play-button');
+    <script>
+        document.getElementById('urlForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('generate', 'true');
+            formData.append('terabox_url', document.getElementById('terabox_url').value);
+            
+            fetch('', { // Replace '' with your server endpoint that generates secure URLs
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const secureUrl = data.secure_url;
+                    document.getElementById('secure_url').textContent = secureUrl;
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('result').classList.remove('error');
 
-      if (!terabox_url) {
-        fileInfoDiv.textContent = 'Error: No TeraBox URL provided.';
-        videoContainer.querySelector('.video-wrapper').innerHTML = `<div class="error-message">Please provide a TeraBox URL using the ?q= parameter.</div>`;
-        return;
-      }
+                    // -----------------------------
+                    // Automatically add iframe
+                    let iframeContainer = document.getElementById('iframeContainer');
+                    iframeContainer.innerHTML = ''; // Clear previous iframe
 
-      // Play button click
-      playButton.addEventListener('click', () => {
-        fileInfoDiv.textContent = 'Loading video...';
-        const modifiedUrl = terabox_url.replace(/(https?:\/\/)[^/]+/, '$11024terabox.com');
-        const API_KEY = 'terabox_downloader_2025_key';
-
-        fetch('https://api.iteraplay.com/generate-player-url.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-API-Key': API_KEY,
-            'Origin': window.location.origin
-          },
-          body: `url=${encodeURIComponent(modifiedUrl)}`
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.player_url) {
-            fileInfoDiv.textContent = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.src = secureUrl;
+                    iframe.allow = 'autoplay; fullscreen';
+                    iframeContainer.appendChild(iframe);
+                    // -----------------------------
+                } else {
+                    throw new Error(data.error || 'Generation failed');
+                }
+            })
+            .catch(error => {
+                document.getElementById('secure_url').textContent = 'Error: ' + error.message;
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('result').classList.add('error');
+            });
+        });
+    </script>
+</body>
+</html>            fileInfoDiv.textContent = '';
             const iframe = document.createElement('iframe');
             iframe.src = data.player_url;
             iframe.allow = 'autoplay; fullscreen; encrypted-media';
