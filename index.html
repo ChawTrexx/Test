@@ -1,178 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TeraBox Video Player</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
-<style>
-body { font-family: Arial; max-width: 900px; margin: auto; padding: 20px; }
-#video-container { margin-top: 20px; }
-.container-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; display: flex; gap:10px; }
-.container-image img { width: 150px; height: 90px; object-fit: cover; }
-.container-info { flex: 1; }
-button { padding:5px 10px; margin-right:5px; margin-top:5px; cursor:pointer; }
-.error-message { color:red; margin-top:20px; }
-.spinner-container { display:flex; justify-content:center; margin-top:20px; }
-.spinner4 { width:40px; height:40px; border:5px solid #ccc; border-top:5px solid #333; border-radius:50%; animation:spin 1s linear infinite; }
-@keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesiPapa.xxx</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Open Graph tags -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="𝗦𝗵𝗮𝗿𝗲𝗱 𝘃𝗶𝗮 𝗧𝗲𝗿𝗮𝗕𝗼𝘅" />
+  <meta property="og:description" content="Watch this content via TeraBox." />
+  <meta property="og:url" content="https://honeycum.fun/play3.html" />
+  <meta property="og:image" content="https://honeycum.fun/Terabox.png" />
+  <meta property="og:site_name" content="TeraBox" />
+
+  <style>
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 177.78%; /* 9:16 aspect ratio */
+      overflow: hidden;
+      border-radius: 0.5rem;
+    }
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .error-message {
+      color: #e53e3e;
+      font-size: 1rem;
+      text-align: center;
+      padding: 1rem;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-gray-100 flex flex-col items-center min-h-screen">
 
-<h1>TeraBox Video Player</h1>
-<input type="text" id="terabox-link" placeholder="Paste TeraBox Link Here" style="width:100%; padding:10px;">
-<button id="play-btn" style="margin-top:10px; padding:10px;">Load Videos</button>
+  <!-- Header -->
+  <header class="w-full h-16 bg-gray-900 text-white flex items-center justify-between px-4">
+    <h1 class="text-lg font-semibold">TeraPlayer</h1>
+    <a href="https://t.me/+Q656m5kaC245Njg1" target="_blank" rel="noopener noreferrer"
+       class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm inline-block">
+      Join Channel
+    </a>
+  </header>
 
-<div id="video-container"></div>
-<div id="file-info"></div>
-<div id="loading"></div>
-<div id="result"></div>
+  <!-- Stream Container -->
+  <div class="stream-container w-full max-w-4xl mx-auto mt-1 flex flex-col items-center px-1">
+    <h1 id="file-info" class="text-center text-lg font-medium text-gray-800 mb-4">
+      Loading file...
+    </h1>
 
-<script>
-const api = "https://api.iteraplay.com";
-let list_file;
+    <div id="video-container" class="w-full bg-black rounded-lg">
+      <div class="video-wrapper" id="video-wrapper">
+        <!-- Iframe will be injected here -->
+      </div>
+    </div>
+  </div> 
 
-// Loading spinner
-function showLoading(active) {
-    const el = document.getElementById('loading');
-    el.innerHTML = active ? '<div class="spinner-container"><div class="spinner4"></div></div>' : '';
-}
+  <footer class="w-full bg-gray-900 text-gray-300 text-center text-xs py-2 mt-auto">
+    ** Wait 10-15 sec to start streaming the video. Refresh this page if video doesn't load **
+  </footer>
 
-// Error display
-function showError(msg) {
-    showLoading(false);
-    document.getElementById('video-container').innerHTML = `<div class="error-message">${msg}</div>`;
-}
+  <script>
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
 
-// Play video in page
-function playVideo(stream_url, fileName) {
-    showLoading(false);
-    const container = document.getElementById('video-container');
-    container.innerHTML = '';
-    const video = document.createElement('video');
-    video.controls = true;
-    video.autoplay = true;
-    video.muted = true;
-    video.preload = 'metadata';
-    video.style.width = '100%';
-    container.appendChild(video);
+    const fileUrl = getQueryParam('q');
+    const fileInfo = document.getElementById('file-info');
+    const videoWrapper = document.getElementById('video-wrapper');
 
-    document.title = fileName;
-    document.getElementById('file-info').textContent = fileName;
+    if (fileUrl) {
+      // Encode the TeraBox URL
+      const encodedUrl = encodeURIComponent(fileUrl);
+      const playerUrl = `https://playterabox.com/player?url=${encodedUrl}`;
 
-    if(Hls.isSupported()){
-        const hls = new Hls();
-        hls.loadSource(stream_url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=> video.muted=false));
-        hls.on(Hls.Events.ERROR, (event,data) => {
-            if(data.fatal){ showError("Failed to load video stream."); hls.destroy(); }
-        });
+      // Create iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = playerUrl;
+      iframe.allow = 'autoplay; fullscreen';
+      videoWrapper.appendChild(iframe);
+
+      // Update file info
+      fileInfo.textContent = fileUrl;
     } else {
-        video.src = stream_url;
+      fileInfo.textContent = "No file URL provided.";
+      const errorDiv = document.createElement('div');
+      errorDiv.className = "error-message";
+      errorDiv.textContent = "Unable to load video. Please provide a valid TeraBox URL.";
+      videoWrapper.appendChild(errorDiv);
     }
-}
-
-// Fetch TeraBox files via API
-async function fetchTeraBoxFiles(url){
-    showLoading(true);
-    try {
-        const res = await fetch(api,{
-            method:'POST',
-            headers:{'Content-Type':'application/json','X-API-Key':'terabox_pro_api_2025_premium'},
-            body:JSON.stringify({link:url})
-        });
-        const data = await res.json();
-        if(data.status==='success' && data.list && data.list.length>0){
-            list_file = data.list;
-            return data.list;
-        } else {
-            throw new Error('No videos found.');
-        }
-    } catch(e){
-        console.error(e);
-        showError('Failed to fetch TeraBox files.');
-        return [];
-    }
-}
-
-// Recursive search for first video
-function findFirstVideo(files){
-    for(const item of files){
-        if(item.type==='video' && (item.stream_url || item.fast_stream_url)) return item;
-        if(item.is_dir===1 && item.list){
-            const found = findFirstVideo(item.list);
-            if(found) return found;
-        }
-    }
-    return null;
-}
-
-// Display all files
-function displayFiles(files){
-    const container = document.getElementById('result');
-    container.innerHTML='';
-    files.forEach(item=>{
-        if(item.is_dir===1 && item.list){
-            displayFiles(item.list);
-        } else {
-            const div = document.createElement('div');
-            div.className='container-item';
-            div.innerHTML=`
-                <div class="container-image">
-                    <img src="${item.thumbnail || 'https://via.placeholder.com/150x90?text=No+Preview'}">
-                </div>
-                <div class="container-info">
-                    <strong>${item.name}</strong> <br>
-                    Size: ${item.size_formatted || 'N/A'} <br>
-                    <button onclick="downloadFile('${item.download_link}','${item.name}')">Direct DL</button>
-                    ${item.type==='video' ? `<button onclick="playVideo('${item.fast_stream_url || item.stream_url}','${item.name}')">Stream</button>` : ''}
-                </div>
-            `;
-            container.appendChild(div);
-        }
-    });
-}
-
-// Direct download
-function downloadFile(url,name){
-    if(!url) return alert('Download link not available');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download=name;
-    a.target='_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
-
-// Main button
-document.getElementById('play-btn').addEventListener('click', async ()=>{
-    const link = document.getElementById('terabox-link').value.trim();
-    if(!link) return showError('Please paste a TeraBox link.');
-    const files = await fetchTeraBoxFiles(link);
-    if(files.length===0) return;
-    displayFiles(files);
-
-    const firstVideo = findFirstVideo(files);
-    if(firstVideo){
-        const stream_url = firstVideo.fast_stream_url || firstVideo.stream_url;
-        playVideo(stream_url, firstVideo.name);
-    } else {
-        showError('No video found to play.');
-    }
-});
-</script>
-
-</body>
-</html>    if(video){
-        const stream_url = video.fast_stream_url || video.stream_url;
-        playVideo(stream_url, video.name);
-    } else {
-        showError('No playable video found in this link.');
-    }
-});
-</script>
+  </script>
 </body>
 </html>
