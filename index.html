@@ -1,233 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure URL Generator - iTeraPlay</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="url"], input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        input[readonly] {
-            background-color: #e8f5e8 !important;
-            border-color: #28a745;
-            cursor: not-allowed;
-            font-family: monospace !important;
-        }
-        small {
-            color: #666;
-            font-size: 12px;
-            display: block;
-            margin-top: 5px;
-        }
-        button {
-            background: #007cba;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #005a8b;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f5e8;
-            border-radius: 5px;
-            border-left: 4px solid #28a745;
-            display: none;
-        }
-        .result.error {
-            background: #f8e8e8;
-            border-left-color: #dc3545;
-        }
-        .url-output {
-            word-break: break-all;
-            font-family: monospace;
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 3px;
-            margin: 10px 0;
-        }
-        #iframeContainer iframe {
-            width: 100%;
-            height: 500px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeraBox Video Player</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+body { font-family: Arial; max-width: 800px; margin: auto; padding: 20px; }
+#video-container { margin-top: 20px; }
+.error-message { color: red; margin-top: 20px; }
+.spinner-container { display: flex; justify-content: center; margin-top: 20px; }
+.spinner4 { width: 40px; height: 40px; border: 5px solid #ccc; border-top: 5px solid #333; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔐 Secure URL Generator</h1>
-        <p>Generate time-limited secure URLs for accessing TeraBox videos through player.iteraplay.com API.</p>
-        
-        <form id="urlForm">
-            <div class="form-group">
-                <label for="terabox_url">TeraBox URL:</label>
-                <input type="url" id="terabox_url" name="terabox_url" placeholder="https://terabox.com/share/..." required="">
-                <small>Enter any valid TeraBox share link to generate a secure player URL</small>
-            </div>
-            
-            <button type="submit">Generate Secure URL</button>
-        </form>
-        
-        <div id="result" class="result">
-            <h3>Generated Secure URL:</h3>
-            <div id="secure_url" class="url-output"></div>
-            <p><strong>⏰ Valid for:</strong> 5 minutes from generation</p>
-            <p><strong>🔒 Security:</strong> Token-protected and iframe-resistant</p>
-        </div>
 
-        <!-- Iframe will be injected here -->
-        <div id="iframeContainer"></div>
-    </div>
+<h1>TeraBox Video Player</h1>
+<input type="text" id="terabox-link" placeholder="Paste TeraBox Link Here" style="width:100%; padding:10px;">
+<button id="play-btn" style="margin-top:10px; padding:10px;">Play Video</button>
 
-    <script>
-        document.getElementById('urlForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData();
-            formData.append('generate', 'true');
-            formData.append('terabox_url', document.getElementById('terabox_url').value);
-            
-            fetch('', { // Replace '' with your server endpoint that generates secure URLs
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const secureUrl = data.secure_url;
-                    document.getElementById('secure_url').textContent = secureUrl;
-                    document.getElementById('result').style.display = 'block';
-                    document.getElementById('result').classList.remove('error');
+<div id="video-container"></div>
+<div id="file-info"></div>
+<div id="loading"></div>
 
-                    // -----------------------------
-                    // Automatically add iframe
-                    let iframeContainer = document.getElementById('iframeContainer');
-                    iframeContainer.innerHTML = ''; // Clear previous iframe
+<script>
+const api = "https://api.iteraplay.com";
 
-                    const iframe = document.createElement('iframe');
-                    iframe.src = secureUrl;
-                    iframe.allow = 'autoplay; fullscreen';
-                    iframeContainer.appendChild(iframe);
-                    // -----------------------------
-                } else {
-                    throw new Error(data.error || 'Generation failed');
-                }
-            })
-            .catch(error => {
-                document.getElementById('secure_url').textContent = 'Error: ' + error.message;
-                document.getElementById('result').style.display = 'block';
-                document.getElementById('result').classList.add('error');
-            });
+// Show loading spinner
+function showLoading(active) {
+    const el = document.getElementById('loading');
+    if(active) el.innerHTML = '<div class="spinner-container"><div class="spinner4"></div></div>';
+    else el.innerHTML = '';
+}
+
+// Display error
+function showError(msg) {
+    const container = document.getElementById('video-container');
+    container.innerHTML = `<div class="error-message">${msg}</div>`;
+}
+
+// Play video using HLS.js or native support
+function playVideo(stream_url, fileName) {
+    showLoading(false);
+    const container = document.getElementById('video-container');
+    container.innerHTML = '';
+    const video = document.createElement('video');
+    video.controls = true;
+    video.autoplay = true;
+    video.muted = true;
+    video.preload = 'metadata';
+    container.appendChild(video);
+
+    document.title = fileName;
+    document.getElementById('file-info').textContent = fileName;
+
+    if(Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(stream_url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=> video.muted=false));
+        hls.on(Hls.Events.ERROR, (event,data) => {
+            if(data.fatal){ showError("Failed to load video stream."); hls.destroy(); }
         });
-    </script>
-</body>
-</html>            fileInfoDiv.textContent = '';
-            const iframe = document.createElement('iframe');
-            iframe.src = data.player_url;
-            iframe.allow = 'autoplay; fullscreen; encrypted-media';
-            iframe.allowFullscreen = true;
+    } else if(video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = stream_url;
+        video.addEventListener('loadedmetadata', ()=> video.play().catch(()=> video.muted=false));
+    } else {
+        video.src = stream_url;
+    }
+}
 
-            const wrapper = videoContainer.querySelector('.video-wrapper');
-            wrapper.innerHTML = '';
-            wrapper.appendChild(iframe);
-          } else {
-            throw new Error(data.error || 'Failed to generate player URL');
-          }
-        })
-        .catch(err => {
-          fileInfoDiv.textContent = 'Error: Failed to load video';
-          videoContainer.querySelector('.video-wrapper').innerHTML = `<div class="error-message">${err.message}</div>`;
-        });
-      });
-    });
-  </script>
-</body>
-</html>      // Generate player URL using API
-      async function generatePlayerUrl(teraboxUrl) {
-        try {
-          const response = await fetch('https://api.iteraplay.com/generate-player-url.php', {
+// Fetch TeraBox files via API
+async function fetchTeraBoxFiles(url) {
+    showLoading(true);
+    try {
+        const res = await fetch(api, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'X-API-Key': API_KEY,
-              'Origin': window.location.origin
-            },
-            body: `url=${encodeURIComponent(teraboxUrl)}`
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const result = await response.json();
-
-          if (result.success && result.player_url) {
-            return result.player_url;
-          } else {
-            throw new Error(result.error || 'Failed to generate player URL');
-          }
-        } catch (error) {
-          console.error('Detailed error:', error.message, error);
-          throw error;
-        }
-      }
-
-      // Load video using the modified URL
-      generatePlayerUrl(modified_terabox_url)
-        .then(playerUrl => {
-          fileInfoDiv.textContent = '';
-          
-          const playerIframe = document.createElement('iframe');
-          playerIframe.src = playerUrl;
-          playerIframe.allow = 'autoplay; fullscreen; encrypted-media';
-          playerIframe.allowFullscreen = true;
-          playerIframe.className = 'iframe';
-
-          videoContainer.querySelector('.video-wrapper').innerHTML = ''; // Clear play button
-          videoContainer.querySelector('.video-wrapper').appendChild(playerIframe);
-        })
-        .catch(error => {
-          fileInfoDiv.textContent = 'Error: Failed to load video';
-          videoContainer.querySelector('.video-wrapper').innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
+            headers: { 'Content-Type':'application/json', 'X-API-Key':'terabox_pro_api_2025_premium' },
+            body: JSON.stringify({ link: url })
         });
-    });
-  </script>
+        const data = await res.json();
+        if(data.status==='success' && data.list && data.list.length>0){
+            return data.list;
+        } else {
+            throw new Error('No videos found in this link.');
+        }
+    } catch(e) {
+        showLoading(false);
+        showError('Failed to fetch TeraBox files.');
+        console.error(e);
+        return [];
+    }
+}
 
-</body></html>
+// Recursive search for first video
+function findFirstVideo(files){
+    for(const item of files){
+        if(item.type==='video' && (item.stream_url || item.fast_stream_url)) return item;
+        if(item.is_dir===1 && item.list) {
+            const found = findFirstVideo(item.list);
+            if(found) return found;
+        }
+    }
+    return null;
+}
+
+// Main function
+document.getElementById('play-btn').addEventListener('click', async ()=>{
+    const link = document.getElementById('terabox-link').value.trim();
+    if(!link) { showError('Please paste a TeraBox link'); return; }
+    const files = await fetchTeraBoxFiles(link);
+    const video = findFirstVideo(files);
+    if(video){
+        const stream_url = video.fast_stream_url || video.stream_url;
+        playVideo(stream_url, video.name);
+    } else {
+        showError('No playable video found in this link.');
+    }
+});
+</script>
+</body>
+</html>
